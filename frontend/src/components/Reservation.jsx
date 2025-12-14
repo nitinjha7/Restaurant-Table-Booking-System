@@ -64,14 +64,6 @@ const Reservation = () => {
     }
 
     const url = import.meta.env.VITE_SERVER_URL;
-    if(!url) {
-      toast("Server URL is not defined", {
-        type: "error",
-        position: "top-center",
-        theme: "colored",
-      });
-      return;
-    }
     try {
       const response = await axios.post(`${url}/reservation/send`, formData);
       console.log(response.data);
