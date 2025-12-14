@@ -1,6 +1,6 @@
-const reservation = require('../models/reservationSchema');
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+const reservation = require("../models/reservationSchema");
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -13,23 +13,27 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendReservation = async(req, res, next) => {
-    const {firstName, lastName, email, date, time, phone} = req.body;
-    if(!firstName || !lastName || !email || !date || !time || !phone){
-        return res.status(400).json({
-            success: false,
-            message: "Please fill full reservation form",
-        })
-    }
+const sendReservation = async (req, res, next) => {
+  const { firstName, lastName, email, date, time, phone } = req.body;
+  if (!firstName || !lastName || !email || !date || !time || !phone) {
+    return res.status(400).json({
+      success: false,
+      message: "Please fill full reservation form",
+    });
+  }
 
-    try{
-        await reservation.create({firstName, lastName, email, date, time, phone});
+  try {
+    await reservation.create({ firstName, lastName, email, date, time, phone });
+    res.status(201).json({
+      success: true,
+      message: "Reservation Sent Successfully!",
+    });
 
-        const info = await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: "Reservation Confirmation",
-          html: `
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Reservation Confirmation",
+      html: `
             <html>
             <head>
                 <style>
@@ -143,39 +147,32 @@ const sendReservation = async(req, res, next) => {
             </body>
             </html>
         `,
-        });
+    });
 
+  } catch (error) {
+    console.log("Error occured ", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error occured while sending reservation",
+    });
+  }
+};
 
-        res.status(201).json({
-            success: true,
-            message: "Reservation sent successfully",
-        });
-    }
-    catch(error){
-        console.log("Error occured ", error.message);
-        res.status(500).json({
-            success: false,
-            message: "Error occured while sending reservation",
-        })
-    }
-}
+const getReservation = async (req, res) => {
+  try {
+    const data = await reservation.find({});
+    console.log("Fetched Reservations: ", data);
+    res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (err) {
+    console.error("Error fetching reservations: ", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Cannot get reservation data",
+    });
+  }
+};
 
-const getReservation = async(req, res) => {
-    try{
-        const data = await reservation.find({});
-        console.log("Fetched Reservations: ", data);
-        res.status(200).json({
-            success: true,
-            data: data,
-        })
-    }
-    catch(err){
-        console.error("Error fetching reservations: ", err.message);
-        res.status(500).json({
-            success: false,
-            message: "Cannot get reservation data"
-        })
-    }
-}
-
-module.exports = {sendReservation, getReservation};
+module.exports = { sendReservation, getReservation };
