@@ -3,18 +3,9 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for port 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const sendReservation = async (req, res, next) => {
+const sendReservation = async (req, res) => {
   const { firstName, lastName, email, date, time, phone } = req.body;
+
   if (!firstName || !lastName || !email || !date || !time || !phone) {
     return res.status(400).json({
       success: false,
@@ -23,144 +14,152 @@ const sendReservation = async (req, res, next) => {
   }
 
   try {
-    await reservation.create({ firstName, lastName, email, date, time, phone });
-
-    res.status(201).json({
-      success: true,
-      message: "Reservation Saved Successfully!",
-    });
-
-    transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          email: process.env.SENDER_EMAIL,
+          name: "The Restaurant Team",
+        },
+        to: [{ email: email, name: `${firstName} ${lastName}` }],
         subject: "Reservation Confirmation",
-        html: `
-            <html>
+        htmlContent: `
+          <html>
             <head>
-                <style>
+              <style>
                 body {
-                    font-family: 'Arial', sans-serif;
-                    background-color: #f4f7f6;
-                    color: #333;
-                    margin: 0;
-                    padding: 0;
+                  font-family: 'Arial', sans-serif;
+                  background-color: #f4f7f6;
+                  color: #333;
+                  margin: 0;
+                  padding: 0;
                 }
                 .container {
-                    width: 100%;
-                    max-width: 650px;
-                    margin: 0 auto;
-                    background-color: #ffffff;
-                    padding: 30px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                  width: 100%;
+                  max-width: 650px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 30px;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 }
                 h1 {
-                    color: #2d5d6f;
-                    text-align: center;
-                    font-size: 32px;
-                    margin-bottom: 10px;
+                  color: #2d5d6f;
+                  text-align: center;
+                  font-size: 30px;
+                  margin-bottom: 10px;
                 }
                 p {
-                    font-size: 16px;
-                    line-height: 1.6;
-                    color: #555;
+                  font-size: 16px;
+                  line-height: 1.6;
+                  color: #555;
                 }
                 .logo {
-                    text-align: center;
-                    margin-bottom: 20px;
+                  text-align: center;
+                  margin-bottom: 20px;
                 }
                 .logo img {
-                    width: 150px;
-                    height: auto;
+                  width: 150px;
+                  height: auto;
                 }
                 .reservation-details {
-                    background-color: #f9fafb;
-                    padding: 20px;
-                    margin-top: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+                  background-color: #f9fafb;
+                  padding: 20px;
+                  margin-top: 20px;
+                  border-radius: 8px;
+                  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
                 }
                 .reservation-details p {
-                    margin: 10px 0;
-                    font-size: 16px;
-                    color: #444;
-                }
-                .button {
-                    display: inline-block;
-                    background-color: #2d5d6f;
-                    color: #ffffff;
-                    padding: 12px 25px;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    font-size: 16px;
-                    text-align: center;
-                    margin-top: 30px;
+                  margin: 10px 0;
+                  font-size: 16px;
+                  color: #444;
                 }
                 .footer {
-                    text-align: center;
-                    font-size: 14px;
-                    color: #777;
-                    margin-top: 40px;
-                    line-height: 1.4;
-                }
-                .footer a {
-                    color: #2d5d6f;
-                    text-decoration: none;
-                }
-                .footer a:hover {
-                    text-decoration: underline;
+                  text-align: center;
+                  font-size: 14px;
+                  color: #777;
+                  margin-top: 40px;
+                  line-height: 1.4;
                 }
                 .footer small {
-                    display: block;
-                    margin-top: 10px;
-                    font-size: 12px;
-                    color: #aaa;
+                  display: block;
+                  margin-top: 10px;
+                  font-size: 12px;
+                  color: #aaa;
                 }
-                </style>
+              </style>
             </head>
+
             <body>
-                <div class="container">
+              <div class="container">
+
                 <!-- Logo -->
                 <div class="logo">
-                    <img src="https://i.ibb.co/1K710c8/logo.png" alt="logo" border="0" />
+                  <img
+                    src="https://raw.githubusercontent.com/nitinjha7/Restaurant-Table-Booking-System/ea0e95fb648cdf7ba566d7d9206aecd536a133aa/frontend/public/assets/logo.png"
+                    alt="Restaurant Logo"
+                  />
                 </div>
 
-                <!-- Reservation Header -->
-                <h1>Reservation Confirmed!</h1>
+                <!-- Header -->
+                <h1>Reservation Request Received</h1>
+
                 <p>Dear <strong>${firstName} ${lastName}</strong>,</p>
-                <p>Thank you for choosing our restaurant. We are delighted to confirm your reservation. Below are the details of your reservation:</p>
+
+                <p>
+                  Thank you for reaching out to us. We have successfully received your
+                  table reservation request. Our team is currently reviewing the
+                  availability for the selected date and time.
+                </p>
 
                 <!-- Reservation Details -->
                 <div class="reservation-details">
-                    <p><strong>Reservation Date:</strong> ${date}</p>
-                    <p><strong>Reservation Time:</strong> ${time}</p>
-                    <p><strong>Contact Number:</strong> ${phone}</p>
+                  <p><strong>Requested Date:</strong> ${date}</p>
+                  <p><strong>Requested Time:</strong> ${time}</p>
+                  <p><strong>Contact Number:</strong> ${phone}</p>
                 </div>
+
+                <p>
+                  If your request is approved, you will receive a separate confirmation
+                  message from us.
+                </p>
 
                 <!-- Footer -->
                 <div class="footer">
-                    <p>If you have any questions, feel free to <a href="mailto:${process.env.EMAIL_USER}">contact us</a>.</p>
-                    <p>We look forward to serving you!</p>
-                    <p><strong>The Restaurant Team</strong></p>
-                    <small>123 Food Street, Gourmet City | Tel: +123 456 7890 | Email: ${process.env.EMAIL_USER}</small>
+                  <p>We appreciate your patience and look forward to serving you.</p>
+                  <p><strong>The Restaurant Team</strong></p>
+                  <small>
+                    123 Food Street, Gourmet City | Tel: +123 456 7890
+                  </small>
                 </div>
-                </div>
+
+              </div>
             </body>
-            </html>
+          </html>
+
         `,
-      })
-      .then((info) => {
-        console.log("Reservation email sent: ", info.messageId);
-      })
-      .catch((err) => {
-        console.error("Error sending reservation email: ", err.message);
-      });
-    
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Error sending email: ${errorData.message}`);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Email Sent",
+    });
   } catch (error) {
-    console.log("Error occured while saving reservation: ", error.message);
+    console.error("Error sending reservation email: ", error.message);
     res.status(500).json({
       success: false,
-      message: "Error occured while saving reservation",
+      message: "Error occured while sending reservation email",
     });
   }
 };
