@@ -25,8 +25,12 @@ const sendReservation = async (req, res, next) => {
   try {
     await reservation.create({ firstName, lastName, email, date, time, phone });
 
-    try {
-      await transporter.sendMail({
+    res.status(201).json({
+      success: true,
+      message: "Reservation Saved Successfully!",
+    });
+
+    transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Reservation Confirmation",
@@ -144,18 +148,16 @@ const sendReservation = async (req, res, next) => {
             </body>
             </html>
         `,
+      })
+      .then((info) => {
+        console.log("Reservation email sent: ", info.messageId);
+      })
+      .catch((err) => {
+        console.error("Error sending reservation email: ", err.message);
       });
-    } catch (err) {
-      console.log("Error in sending email: ", err.message);
-    }
-
-    res.status(201).json({
-      success: true,
-      message: "Reservation Sent Successfully!",
-    });
     
   } catch (error) {
-    console.log("Error occured ", error.message);
+    console.log("Error occured while saving reservation: ", error.message);
     res.status(500).json({
       success: false,
       message: "Error occured while saving reservation",
