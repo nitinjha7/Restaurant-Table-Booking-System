@@ -66,7 +66,7 @@ const Reservation = () => {
     const url = import.meta.env.VITE_SERVER_URL;
     try {
       const response = await axios.post(`${url}/reservation/send`, formData);
-      console.log(response.data);
+      // console.log(response.data);
       navigate("/success");
     } catch (error) {
       console.log(error);
@@ -136,6 +136,7 @@ const Reservation = () => {
               <input
                 type="date"
                 name="date"
+                min ={new Date().toISOString().split("T")[0]}
                 value={formData.date}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"

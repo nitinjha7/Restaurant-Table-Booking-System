@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from "/assets/logo.png";
 import { Link } from "react-scroll";
 import { Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -12,14 +13,12 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
       setIsScrolled(currentScrollY > 50);
 
-      // Hide navbar when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setShowNavbar(false); // Scrolling down
+        setShowNavbar(false);
       } else {
-        setShowNavbar(true); // Scrolling up
+        setShowNavbar(true);
       }
 
       setLastScrollY(currentScrollY);
@@ -34,6 +33,8 @@ const Navbar = () => {
   };
 
   const navItems = ["home", "about", "popularDishes", "reservation", "contact"];
+
+  const navigate = useNavigate();
 
   return (
     <div
@@ -54,7 +55,7 @@ const Navbar = () => {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav className="hidden lg:block">
+        <nav className="hidden lg:flex items-center gap-8">
           <ul className="flex gap-8 font-medium text-lg">
             {navItems.map((item) => (
               <li key={item}>
@@ -69,6 +70,13 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
+
+          <button
+            onClick={() => navigate("/admin/login")}
+            className="ml-4 px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+          >
+            Admin
+          </button>
         </nav>
 
         {isMenuOpen && (
@@ -88,6 +96,15 @@ const Navbar = () => {
                     </Link>
                   </li>
                 ))}
+
+                <li className="pt-2 border-t">
+                  <button
+                    onClick={() => {() => navigate("/admin/login")}}
+                    className="block py-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+                  >
+                    Admin
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>
