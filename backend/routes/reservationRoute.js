@@ -1,9 +1,8 @@
-const express = require('express');
-const {sendReservation, getReservation} = require('../controllers/reservation')
+import express from "express";
+import { sendReservation} from "../controllers/reservation.js";
 
 const router = express.Router();
 
 router.post("/send", sendReservation);
-router.get("/requests", getReservation);
 
-module.exports = router;
+export default router;
