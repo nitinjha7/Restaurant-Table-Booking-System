@@ -1,71 +1,65 @@
 import React, { useState, useEffect } from "react";
 import logo from "/assets/logo.png";
 import { Link } from "react-scroll";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [showNavbar, setShowNavbar] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 50);
-
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setShowNavbar(false);
-      } else {
-        setShowNavbar(true);
-      }
-
-      setLastScrollY(currentScrollY);
+      setIsScrolled(window.scrollY > 20);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const navItems = ["home", "about", "popularDishes", "reservation", "contact"];
-
-  const navigate = useNavigate();
+  const navItems = [
+    { id: "home", label: "Home" },
+    { id: "about", label: "Story" },
+    { id: "popularDishes", label: "Menu" },
+    { id: "reservation", label: "Book Table" },
+    { id: "contact", label: "Contact" },
+  ];
 
   return (
-    <div
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-white/80 backdrop-blur-md shadow-lg" : "bg-transparent"
-      } ${showNavbar ? "translate-y-0" : "-translate-y-full"}`}
+        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"
+      }`}
     >
-      <div className="flex items-center justify-between w-[90%] mx-auto py-4">
-        <div className="w-20 transition-transform duration-300 hover:scale-105">
-          <img src={logo} alt="Restaurant Logo" className="w-full" />
-        </div>
+      <div className="w-[90%] max-w-7xl mx-auto flex items-center justify-between">
+        <Link to="home" smooth={true} duration={500} className="cursor-pointer flex items-center gap-2 group">
+           <img src={logo} alt="The Social Spot" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform" />
+           <div className="hidden sm:block">
+             <h1 className={`text-xl font-serif font-bold tracking-wide transition-colors ${isScrolled ? "text-gray-900" : "text-gray-800"}`}>
+               The Social <span className="text-orange-600">Spot</span>
+             </h1>
+           </div>
+        </Link>
 
-        <button
-          className="lg:hidden text-gray-600 hover:text-gray-900"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <nav className="hidden lg:flex items-center gap-8">
-          <ul className="flex gap-8 font-medium text-lg">
+        <div className="hidden lg:flex items-center gap-8">
+          <ul className="flex gap-8">
             {navItems.map((item) => (
-              <li key={item}>
+              <li key={item.id}>
                 <Link
-                  to={item}
+                  to={item.id}
                   smooth={true}
-                  duration={200}
-                  className="nav-link cursor-pointer hover:text-primary transition-colors"
+                  duration={500}
+                  className={`relative text-sm font-medium cursor-pointer transition-colors group py-1 ${
+                    isScrolled ? "text-gray-600 hover:text-orange-600" : "text-gray-700 hover:text-orange-600"
+                  }`}
                 >
-                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-orange-600 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </li>
             ))}
@@ -73,44 +67,60 @@ const Navbar = () => {
 
           <button
             onClick={() => navigate("/admin/login")}
-            className="ml-4 px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-orange-600 border border-orange-200 bg-orange-50 rounded-full hover:bg-orange-600 hover:text-white transition-all duration-300 ml-4 shadow-sm"
           >
-            Admin
+            <ShieldCheck size={16} />
+            <span>Admin</span>
           </button>
-        </nav>
+        </div>
 
-        {isMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg">
-            <nav className="w-[90%] mx-auto py-4">
-              <ul className="flex flex-col gap-4">
-                {navItems.map((item) => (
-                  <li key={item}>
-                    <Link
-                      to={item}
-                      smooth={true}
-                      duration={200}
-                      className="nav-link block py-2 hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.charAt(0).toUpperCase() + item.slice(1)}
-                    </Link>
-                  </li>
-                ))}
-
-                <li className="pt-2 border-t">
-                  <button
-                    onClick={() => {() => navigate("/admin/login")}}
-                    className="block py-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
-                  >
-                    Admin
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        )}
+        <button
+          className={`lg:hidden transition-colors p-2 ${isScrolled ? "text-gray-900" : "text-gray-800"}`}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
-    </div>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-t border-gray-100 shadow-xl overflow-hidden"
+          >
+            <ul className="flex flex-col p-6 space-y-4 text-center">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    to={item.id}
+                    smooth={true}
+                    duration={500}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-lg font-serif text-gray-800 hover:text-orange-600 transition-colors py-2"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <div className="h-px bg-gray-100 w-full my-2"></div>
+              <li>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate("/admin/login");
+                  }}
+                  className="text-orange-600 font-medium hover:text-orange-700 transition-colors flex items-center justify-center gap-2 w-full py-2"
+                >
+                   <ShieldCheck size={18} /> Admin Access
+                </button>
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 

@@ -2,84 +2,58 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../public/assets/logo.png";
 import { motion } from "framer-motion";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Home } from "lucide-react";
 
 const Success = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef] flex flex-col items-center justify-center p-4 relative overflow-hidden"
-    >
+    <section className="min-h-screen bg-stone-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-100 rounded-full blur-[100px] opacity-50 pointer-events-none -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-200 rounded-full blur-[100px] opacity-50 pointer-events-none translate-y-1/2 -translate-x-1/2" />
 
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-white backdrop-blur-lg border border-white/20 rounded-[2.5rem] p-12 max-w-2xl w-full mx-auto shadow-primary/10 shadow-2xl transition-shadow duration-300"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative bg-white rounded-3xl p-12 max-w-lg w-full shadow-2xl shadow-orange-100/50 text-center border border-orange-50"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="w-32 h-32 mx-auto mb-8 rounded-full p-4 shadow-lg"
+          className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8"
         >
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-full h-full object-contain"
-          />
+          <CheckCircle2 className="w-12 h-12 text-green-600" />
         </motion.div>
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center space-y-8"
+          transition={{ delay: 0.3 }}
         >
-          <div className="flex flex-col items-center justify-center gap-4 mb-6">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.6 }}
-              className="p-5 bg-gradient-to-br from-primary to-primary/90 rounded-full shadow-lg"
-            >
-              <CheckCircle className="w-16 h-16 text-white stroke-[1.5]" />
-            </motion.div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent tracking-tight">
-              Reservation Confirmed!
-            </h1>
-          </div>
-
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto font-[350]">
-            Thank you for choosing to dine with us. We've sent a confirmation
-            email with your reservation details and will contact you shortly to
-            finalize any special requests.
+          <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4">
+            Reservation Confirmed!
+          </h1>
+          <p className="text-gray-500 text-lg mb-8 leading-relaxed">
+            Thank you for choosing <span className="font-semibold text-gray-900">The Social Spot</span>. 
+            We have received your request and will contact you shortly to finalize your table.
           </p>
 
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <Link
-              to="/"
-              className="shadow__btn group inline-flex items-center gap-3 px-10 py-5"
-            >
-              <span className="group-hover:-translate-x-1 transition-transform">
-                Return Home
-              </span>
-              <ArrowRight className="h-5 w-5 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
+          <div className="flex justify-center">
+            <Link to="/">
+              <button className="bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-600 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-orange-200">
+                <Home className="w-5 h-5" /> Return to Home
+              </button>
             </Link>
-          </motion.div>
+          </div>
         </motion.div>
 
-        <div className="mt-12 text-center text-sm text-gray-500">
-          <p>Need to make changes? Call us at +1 (555) 123-4567</p>
+        <div className="mt-10 pt-6 border-t border-gray-100">
+          <p className="text-sm text-gray-400">
+            Have questions? Call us at <span className="text-gray-900 font-medium">+91 98765 43210</span>
+          </p>
         </div>
       </motion.div>
-    </motion.div>
+    </section>
   );
 };
 

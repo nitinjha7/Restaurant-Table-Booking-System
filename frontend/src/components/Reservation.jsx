@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import reservationbk from '/assets/reservationbk.png';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import reservationbk from "/assets/reservationbk.png";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { toast } from 'react-toastify';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, Mail, Phone, User } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Mail,
+  Phone,
+  User,
+  Utensils,
+  ArrowRight,
+  Sparkles,
+  PartyPopper
+} from "lucide-react";
 
 const Reservation = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -29,29 +40,17 @@ const Reservation = () => {
   const formValidation = () => {
     const { firstName, lastName, email, date, time, phone } = formData;
     if (!firstName || !lastName || !email || !date || !time || !phone) {
-      toast("Please fill in all fields", {
-        type: "error",
-        position: "top-center",
-        theme: "colored",
-      });
+      toast.error("Please fill in all fields");
       return false;
     }
 
     if (!email.includes("@") || !email.includes(".")) {
-      toast("Please enter a valid email", {
-        type: "error",
-        position: "top-center",
-        theme: "colored",
-      });
+      toast.error("Please enter a valid email");
       return false;
     }
 
     if (phone.length !== 10) {
-      toast("Please enter a valid phone number", {
-        type: "error",
-        position: "top-center",
-        theme: "colored",
-      });
+      toast.error("Please enter a valid 10-digit phone number");
       return false;
     }
     return true;
@@ -59,162 +58,199 @@ const Reservation = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formValidation()) {
-      return;
-    }
+    if (!formValidation()) return;
 
+    setLoading(true);
     const url = import.meta.env.VITE_SERVER_URL;
+
     try {
-      const response = await axios.post(`${url}/reservation/send`, formData);
-      // console.log(response.data);
+      await axios.post(`${url}/reservation/send`, formData);
       navigate("/success");
-    } catch (error) {
-      console.log(error);
-      toast("Something went wrong, please try again later", {
-        type: "error",
-        position: "top-center",
-        theme: "colored",
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        date: "",
+        time: "",
+        phone: "",
       });
+    } catch (error) {
+      toast.error("Something went wrong, please try again later");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-accent py-20" id='reservation'>
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="section-title"
-      >
-        Book a Table
-      </motion.h2>
-
-      <div className='w-[90%] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12'>
-        <motion.form
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          onSubmit={handleSubmit}
-          className='w-full lg:w-1/2 glass-card p-8 space-y-6'
-        >
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">First Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Last Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Date</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              <input
-                type="date"
-                name="date"
-                min ={new Date().toISOString().split("T")[0]}
-                value={formData.date}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Time</label>
-            <div className="relative">
-              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              <input
-                type="time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Phone Number</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="shadow__btn w-full"
-          >
-            Request a table
-          </button>
-          <p className='text-sm text-gray-600 text-center'>
-            *Please submit your reservation details and we will contact you to confirm your booking
-          </p>
-        </motion.form>
-
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className='w-full lg:w-1/2'
-        >
-          <img
-            src={reservationbk}
-            alt="Reservation background"
-            className='w-full h-[600px] object-cover rounded-2xl shadow-2xl'
-          />
-        </motion.div>
+    <section className="relative w-full min-h-screen bg-stone-50 py-20 flex items-center justify-center overflow-hidden" id="reservation">
+      <div className="absolute top-0 left-0 w-full h-[60vh] bg-gray-900 overflow-hidden z-0">
+        <img 
+            src={reservationbk} 
+            alt="Background" 
+            className="w-full h-full object-cover opacity-40 blur-sm scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-stone-50"></div>
       </div>
-    </div>
+
+      <div className="w-[95%] max-w-6xl mx-auto relative z-10">
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="lg:col-span-5 text-gray-900 pt-10"
+          >
+             <div className="bg-orange-100 w-12 h-12 rounded-full flex items-center justify-center mb-6 text-orange-600">
+                <Utensils className="w-6 h-6" />
+             </div>
+             
+             <h2 className="text-5xl font-serif font-bold leading-tight mb-6">
+               Save your <br />
+               <span className="text-orange-600 italic">Seat at the Table.</span>
+             </h2>
+             
+             <p className="text-gray-600 text-lg leading-relaxed mb-8">
+               From intimate dinners to celebratory feasts, we are ready to host you. 
+               Book your reservation online to guarantee your spot in our dining room.
+             </p>
+
+             <div className="flex flex-col gap-4">
+               <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                  <div className="bg-orange-50 p-2 rounded-lg text-orange-600">
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">Instant Confirmation</h4>
+                    <p className="text-sm text-gray-500">Receive an email immediately.</p>
+                  </div>
+               </div>
+               <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                  <div className="bg-orange-50 p-2 rounded-lg text-orange-600">
+                    <PartyPopper size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900">Special Occasions</h4>
+                    <p className="text-sm text-gray-500">Let us know if you're celebrating.</p>
+                  </div>
+               </div>
+             </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="lg:col-span-7"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200 p-8 lg:p-10 border border-gray-100 relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-orange-600"></div>
+
+               <form onSubmit={handleSubmit} className="space-y-8">
+                 <div>
+                   <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <User size={16} /> Guest Information
+                   </h3>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="space-y-1">
+                       <label className="text-sm font-semibold text-gray-700">First Name</label>
+                       <input
+                         type="text"
+                         name="firstName"
+                         placeholder="John"
+                         value={formData.firstName}
+                         onChange={handleChange}
+                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium"
+                       />
+                     </div>
+                     <div className="space-y-1">
+                       <label className="text-sm font-semibold text-gray-700">Last Name</label>
+                       <input
+                         type="text"
+                         name="lastName"
+                         placeholder="Doe"
+                         value={formData.lastName}
+                         onChange={handleChange}
+                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium"
+                       />
+                     </div>
+                     <div className="space-y-1 md:col-span-2">
+                       <label className="text-sm font-semibold text-gray-700">Email Address</label>
+                       <div className="relative">
+                         <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                         <input
+                           type="email"
+                           name="email"
+                           placeholder="john@example.com"
+                           value={formData.email}
+                           onChange={handleChange}
+                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium"
+                         />
+                       </div>
+                     </div>
+                     <div className="space-y-1 md:col-span-2">
+                       <label className="text-sm font-semibold text-gray-700">Phone Number</label>
+                       <div className="relative">
+                         <Phone className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                         <input
+                           type="tel"
+                           name="phone"
+                           placeholder="9876543210"
+                           value={formData.phone}
+                           onChange={handleChange}
+                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium"
+                         />
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="h-px w-full bg-gray-100"></div>
+
+                 <div>
+                   <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <Calendar size={16} /> Date & Time
+                   </h3>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="space-y-1">
+                       <label className="text-sm font-semibold text-gray-700">Select Date</label>
+                       <input
+                         type="date"
+                         name="date"
+                         min={new Date().toISOString().split("T")[0]}
+                         value={formData.date}
+                         onChange={handleChange}
+                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium text-gray-600"
+                       />
+                     </div>
+                     <div className="space-y-1">
+                       <label className="text-sm font-semibold text-gray-700">Select Time</label>
+                       <input
+                         type="time"
+                         name="time"
+                         value={formData.time}
+                         onChange={handleChange}
+                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-orange-100 focus:border-orange-500 outline-none transition-all font-medium text-gray-600"
+                       />
+                     </div>
+                   </div>
+                 </div>
+
+                 <button
+                   type="submit"
+                   disabled={loading}
+                   className="w-full group bg-gray-900 text-white font-bold text-lg py-4 rounded-xl hover:bg-orange-600 transition-all duration-300 shadow-xl shadow-gray-200 hover:shadow-orange-200 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-1"
+                 >
+                   {loading ? "Processing Request..." : "Confirm Reservation"}
+                   {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                 </button>
+               </form>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 };
 
